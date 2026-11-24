@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OpenLink — Custom CarPlay & Android Auto Experience</title>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --card: #131a26;
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text: #f3f6fb;
+      --muted: #9aa6bc;
+      --accent: #38bdf8;
+      --accent-2: #22c55e;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at top right, rgba(56, 189, 248, 0.14), transparent 45%), var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 12px var(--accent-2);
+    }
+
+    .lang-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+
+    .lang-btn {
+      background: transparent;
+      color: var(--muted);
+      border: none;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .lang-btn.active {
+      background: var(--accent);
+      color: #061018;
+    }
+
+    .lang-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    .hero {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 24px;
+      padding: 40px 32px;
+      margin-bottom: 32px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(56, 189, 248, 0.14);
+      color: var(--accent);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    h1 {
+      font-size: clamp(1.9rem, 4vw, 2.8rem);
+      line-height: 1.2;
+      margin-bottom: 14px;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 680px;
+      margin-bottom: 28px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: transform 0.15s ease, opacity 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #061018;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+      margin-bottom: 32px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 24px;
+    }
+
+    .card h2 {
+      font-size: 1.15rem;
+      margin-bottom: 10px;
+    }
+
+    .card p {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .steps {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      padding: 28px;
+    }
+
+    .steps h2 {
+      font-size: 1.3rem;
+      margin-bottom: 16px;
+    }
+
+    .steps ol {
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
+    .steps li {
+      margin-bottom: 10px;
+    }
+
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <span class="dot"></span>
+        <span>OpenLink</span>
+      </div>
+
+      <div class="lang-bar" aria-label="Language switcher">
+        <button id="btn-en" class="lang-btn active" type="button" onclick="setLang('en')">English</button>
+        <button id="btn-more" class="lang-btn" type="button" disabled title="More languages coming soon">More Soon</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="badge" id="badge">COMMUNITY BUILD • OPEN SOURCE</div>
+      <h1 id="hero-title">Make Your CarPlay &amp; Android Auto Feel Like Your Own Car.</h1>
+      <p class="subtitle" id="hero-subtitle">
+        Defaulting to OpenLink with live vehicle naming from the CarPlay menu—update and reconnect without restarting the app. Built to share openly with the community.
+      </p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#releases" id="cta-download">Download Package (.ZIP)</a>
+        <a class="btn btn-secondary" href="#source" id="cta-source">View Source Code</a>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2 id="f1-title">Custom Vehicle Identity</h2>
+        <p id="f1-desc">Set your car name directly from the CarPlay menu so every connection feels tailored to your vehicle.</p>
+      </article>
+      <article class="card">
+        <h2 id="f2-title">Instant Apply &amp; Reconnect</h2>
+        <p id="f2-desc">Save changes and reconnect right away without waiting on a full app restart.</p>
+      </article>
+      <article class="card">
+        <h2 id="f3-title">Made for Everyone</h2>
+        <p id="f3-desc">Packaged and shared openly so anyone can test, use, and build upon it.</p>
+      </article>
+    </section>
+
+    <section class="steps" id="releases">
+      <h2 id="steps-title">Quick Setup &amp; Name Refresh on iPhone</h2>
+      <ol id="steps-list">
+        <li>Download and extract the release package, then install the APK on your device.</li>
+        <li>Open the CarPlay menu, enter your desired vehicle name, and tap Save and reconnect.</li>
+        <li>If iPhone still shows an older name, go to iPhone Settings &gt; General &gt; CarPlay, tap Forget This Car, and pair again.</li>
+      </ol>
+    </section>
+
+    <footer id="footer-text">
+      OpenLink Community Release • English primary • Additional languages planned
+    </footer>
+  </div>
+
+  <script>
+    // Dictionary structure ready for future languages while keeping English as the primary language
+    const I18N = {
+      en: {
+        badge: "COMMUNITY BUILD • OPEN SOURCE",
+        heroTitle: "Make Your CarPlay & Android Auto Feel Like Your Own Car.",
+        heroSubtitle: "Defaulting to OpenLink with live vehicle naming from the CarPlay menu—update and reconnect without restarting the app. Built to share openly with the community.",
+        ctaDownload: "Download Package (.ZIP)",
+        ctaSource: "View Source Code",
+        f1Title: "Custom Vehicle Identity",
+        f1Desc: "Set your car name directly from the CarPlay menu so every connection feels tailored to your vehicle.",
+        f2Title: "Instant Apply & Reconnect",
+        f2Desc: "Save changes and reconnect right away without waiting on a full app restart.",
+        f3Title: "Made for Everyone",
+        f3Desc: "Packaged and shared openly so anyone can test, use, and build upon it.",
+        stepsTitle: "Quick Setup & Name Refresh on iPhone",
+        steps: [
+          "Download and extract the release package, then install the APK on your device.",
+          "Open the CarPlay menu, enter your desired vehicle name, and tap Save and reconnect.",
+          "If iPhone still shows an older name, go to iPhone Settings > General > CarPlay, tap Forget This Car, and pair again."
+        ],
+        footerText: "OpenLink Community Release • English primary • Additional languages planned"
+      }
+      // Add another language key here later (e.g., ja: { ... } or th: { ... })
+    };
+
+    function setLang(lang) {
+      const dict = I18N[lang] || I18N.en;
+      document.documentElement.lang = lang;
+      document.getElementById("badge").textContent = dict.badge;
+      document.getElementById("hero-title").textContent = dict.heroTitle;
+      document.getElementById("hero-subtitle").textContent = dict.heroSubtitle;
+      document.getElementById("cta-download").textContent = dict.ctaDownload;
+      document.getElementById("cta-source").textContent = dict.ctaSource;
+      document.getElementById("f1-title").textContent = dict.f1Title;
+      document.getElementById("f1-desc").textContent = dict.f1Desc;
+      document.getElementById("f2-title").textContent = dict.f2Title;
+      document.getElementById("f2-desc").textContent = dict.f2Desc;
+      document.getElementById("f3-title").textContent = dict.f3Title;
+      document.getElementById("f3-desc").textContent = dict.f3Desc;
+      document.getElementById("steps-title").textContent = dict.stepsTitle;
+      document.getElementById("footer-text").textContent = dict.footerText;
+
+      const listEl = document.getElementById("steps-list");
+      listEl.innerHTML = "";
+      dict.steps.forEach((stepText) => {
+        const li = document.createElement("li");
+        li.textContent = stepText;
+        listEl.appendChild(li);
+      });
+
+      document.getElementById("btn-en").classList.toggle("active", lang === "en");
+    }
+  </script>
+</body>
+</html>
